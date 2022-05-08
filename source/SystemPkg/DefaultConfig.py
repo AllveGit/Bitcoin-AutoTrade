@@ -10,7 +10,7 @@ class DefaultConfig(object):
     section_acc_binance = "account_binance"
 
     # 로그를 위한 카카오 OpenAPI 정보 섹션
-    section_acc_kakao = "account_kakaotalk_logging"
+    section_acc_kakao = "kakaotalk_logging"
 
     # 클래스의 객체를 생성할 때 호출되는 object 오버라이드 메소드
     def __new__(cls, *args, **kwargs):

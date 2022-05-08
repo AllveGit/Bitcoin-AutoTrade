@@ -13,7 +13,7 @@ class KakaoLogWorker(threading.Thread):
     def __init__(self):
         super().__init__()
 
-        self.rest_api_key = DefaultConfig.GetKakaoInfo()
+        self.rest_api_key = DefaultConfig().GetKakaoInfo()
         self.Alive = True
 
         # 카카오톡 토큰파일 읽어오기
@@ -61,8 +61,6 @@ class KakaoLogWorker(threading.Thread):
 
         with open(self.token_json_path, "w") as fp:
             json.dump(self.tokens, fp)
-
-        print(self.tokens)
 
     # 카카오톡 메시지를 보내는 함수
     def send_to_kakao(self, text):
