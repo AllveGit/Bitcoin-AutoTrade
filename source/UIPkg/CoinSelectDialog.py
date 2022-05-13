@@ -14,7 +14,6 @@ import re
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QDialog, QWidget, QListWidgetItem
-from UIPkg.CoinInfoDialog import CoinInfoDialog
 
 form_coinselectdialog_class = uic.loadUiType("resource/dialog_coinselect.ui")[0]
 
@@ -23,9 +22,11 @@ class CoinSelectDialog(QDialog, QWidget, form_coinselectdialog_class):
 
     def __init__(self, marketType):
         super().__init__()
+
         self.setupUi(self)
 
         self.marketType = marketType
+
         self.createCoinList()
 
         # ===== 버튼 이벤트 연결 =====
@@ -74,8 +75,8 @@ class CoinSelectDialog(QDialog, QWidget, form_coinselectdialog_class):
         if selectCoin is None:
             return
 
-        self.coinSelectedSignal.emit(self.marketType, selectCoin.text())
         self.close()
+        self.coinSelectedSignal.emit(self.marketType, selectCoin.text())
 
     def onBackTestingBtnClick(self):
         if len(self.CoinList.selectedItems()) <= 0:

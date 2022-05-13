@@ -77,9 +77,10 @@ class TradeWorker_BullMarket(QThread):
 
     # 자동 트레이딩을 종료하는 함수
     def close(self):
-        self.AutoTrading = False
-        self.SellFullTickerCoin()
-        self.trade_logging("===== 자동 트레이딩 종료! =====")
+        if self.AutoTrading is True:
+            self.AutoTrading = False
+            self.SellFullTickerCoin()
+            self.trade_logging("===== 자동 트레이딩 종료! =====")
 
     # 현재 UI 텍스트 필드 및 카카오톡으로 로그쓰기
     def trade_logging(self, log):

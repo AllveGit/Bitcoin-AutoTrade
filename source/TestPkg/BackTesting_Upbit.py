@@ -1,5 +1,7 @@
+from datetime import tzinfo
 import pyupbit
 import numpy as np
+import pandas as pd
 from pandas import DataFrame, Series
 
 def MakeBackTestData(ticker):
@@ -10,7 +12,9 @@ def MakeBackTestData(ticker):
         k = round(k, 1)
         
         ohlcvDF = pyupbit.get_ohlcv(ticker)
-        # 전일 고가에서 전일 저가를 빼고 k를 곱한 값인 range를 구한다.
+        ohlcvDF.index = ohlcvDF.index.tz_localize(None)
+
+        # 전일 고가에서 전일 저가를 빼고 pik를 곱한 값인 range를 구한다.
         # range를 금일 시가에 더하면 목표 매수가가 된다.
         ohlcvDF["range"] = (ohlcvDF["high"] - ohlcvDF["low"]) * k
 

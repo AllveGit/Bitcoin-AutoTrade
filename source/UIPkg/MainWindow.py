@@ -1,3 +1,4 @@
+from pickle import TRUE
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow
 from UIPkg.CoinInfoDialog import CoinInfoDialog

@@ -1,6 +1,9 @@
 import sys
 import time
 import asyncio
+import websockets
+import json
+import multiprocessing as mp
 
 # ========== Upbit ==========
 from pyupbit import WebSocketManager
@@ -32,28 +35,60 @@ class OverViewWorker(QThread):
 
     def run(self):
         if self.marketType == "upbit":
-            self.run_upbit()
+            asyncio.run(self.run_upbit())
         elif self.marketType == "binance":
             asyncio.run(self.run_binance())
 
     # upbit용 갱신함수
-    def run_upbit(self):
-        wm = WebSocketManager("ticker", [f"{self.ticker}"])
-        while self.alive:
-            webData = wm.get()
-            self.overviewDataSignal.emit(self.tickerName,
-                                         float(webData["trade_price"]),
-                                         float(webData["signed_change_rate"] * 100),
-                                         float(webData["acc_trade_volume_24h"]),
-                                         int  (webData["high_price"]),
-                                         float(webData["acc_trade_price_24h"]),
-                                         int  (webData["low_price"]),
-                                         str  (webData["delisting_date"]),
-                                         int  (webData["prev_closing_price"]))
+    async def run_upbit(self):
+        url = "wss://api.upbit.com/websocket/v1"
+        async with websockets.connect(url, ping_interval=None) as websocket:
+            subscribe_fmt = [ 
+                {"ticket":"test"},
+                {
+                    "type": "ticker",
+                    "codes":[self.ticker],
+                    "isOnlyRealtime": True
+                },
+                {"format":"SIMPLE"}
+            ]
 
-            time.sleep(self.refreshInterval)
+            subscribe_data = json.dumps(subscribe_fmt)
+            await websocket.send(subscribe_data)
 
-        wm.terminate()
+            while self.alive:
+                webData = await websocket.recv()
+                webData = json.loads(webData)
+
+                self.overviewDataSignal.emit(self.tickerName,
+                                             float(webData["tp"]),
+                                             float(webData["scr"] * 100),
+                                             float(webData["atv24h"]),
+                                             int  (webData["hp"]),
+                                             float(webData["atp24h"]),
+                                             int  (webData["lp"]),
+                                             str  (webData["dd"]),
+                                             int  (webData["pcp"]))
+
+                time.sleep(self.refreshInterval)
+
+
+        # wm = WebSocketManager("ticker", [self.ticker])
+        # while self.alive:
+        #     webData = wm.get()
+        #     # self.overviewDataSignal.emit(self.tickerName,
+        #     #                              float(webData["trade_price"]),
+        #     #                              float(webData["signed_change_rate"] * 100),
+        #     #                              float(webData["acc_trade_volume_24h"]),
+        #     #                              int  (webData["high_price"]),
+        #     #                              float(webData["acc_trade_price_24h"]),
+        #     #                              int  (webData["low_price"]),
+        #     #                              str  (webData["delisting_date"]),
+        #     #                              int  (webData["prev_closing_price"]))
+
+        #     time.sleep(self.refreshInterval)
+
+        # wm.terminate()
 
     # binance용 갱신함수
     async def run_binance(self):
@@ -77,6 +112,7 @@ class OverViewWorker(QThread):
                 time.sleep(self.refreshInterval)
 
         await binanceAsyncCli.close_connection()
+        
 class OverViewWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)

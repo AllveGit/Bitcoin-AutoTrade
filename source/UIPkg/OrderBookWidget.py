@@ -1,6 +1,7 @@
 from email import header
 import sys
 import time
+from xmlrpc.client import MAXINT
 
 # ========== Upbit ==========
 import pyupbit
@@ -143,11 +144,19 @@ class OrderBookWidget(QWidget):
     def updateOrderBookData_upbit(self, data):
         tradingAskValues = []
         for v in data[::-1]:
-            tradingAskValues.append(int(v["ask_price"] * v["ask_size"]))
+            tradingAskValue = int(v["ask_price"] * v["ask_size"])
+            if tradingAskValue > MAXINT:
+                tradingAskValue = MAXINT
+
+            tradingAskValues.append(tradingAskValue)
 
         tradingBidValues = []
         for v in data:
-            tradingBidValues.append(int(v["bid_price"] * v["bid_size"]))
+            tradingBidValue = int(v["bid_price"] * v["bid_size"])
+            if tradingBidValue > MAXINT:
+                tradingBidValue = MAXINT
+
+            tradingBidValues.append(tradingBidValue)
 
         maxTradingValue = max(tradingBidValues + tradingAskValues)
 

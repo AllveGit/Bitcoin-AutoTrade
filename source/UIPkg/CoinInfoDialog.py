@@ -17,16 +17,17 @@ class CoinInfoDialog(QDialog, QWidget, form_coininfodialog_class):
     def __init__(self, marketType, ticker):
         super().__init__()
 
+        self.setupUi(self)
+
         self.marketType = marketType
         self.ticker = ticker
-
-        # 카카오톡 로그 시스템 생성
-        self.createKakaoLogWorker()
 
         # 트레이딩 시스템 생성
         self.createTradeWorker()
 
-        self.setupUi(self)
+        # 카카오톡 로그 시스템 생성
+        self.createKakaoLogWorker()
+
         self.widget_CoinInfo.workStart(marketType, ticker)
         self.widget_CoinPriceChart.workStart(marketType, ticker)
         self.widget_CoinOrderBook.workStart(marketType, ticker)
